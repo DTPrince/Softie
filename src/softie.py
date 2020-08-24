@@ -32,7 +32,8 @@ import sys, json
 from pathlib import Path
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import QApplication, QWidget, QMainWindow, QLabel, QToolBar, QAction, QStatusBar, QCheckBox, \
-    QGridLayout, QTabWidget, QVBoxLayout, QPushButton, QMenu, QFileDialog, QDialog
+    QGridLayout, QTabWidget, QVBoxLayout, QPushButton, QMenu, QFileDialog, QDialog, QDialogButtonBox, QComboBox, \
+    QHBoxLayout, QLineEdit
 from PyQt5.QtCore import Qt, QSize, pyqtSlot, QCoreApplication
 
 
@@ -63,6 +64,72 @@ class MyTableWidget(QWidget):
         # Add tabs to widget
         self.layout.addWidget(self.tabs)
         self.setLayout(self.layout)
+
+
+class NewRaidDialog(QDialog):
+
+    def __init__(self, *args, **kwargs):
+        super(NewRaidDialog, self).__init__(*args, **kwargs)
+
+        QBtn = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+
+        self.setWindowTitle("New Raid")
+
+        # self.raidName_layout = QVBoxLayout()
+        # self.raidNameText = QLabel("Name of Raid")
+        # self.raidName = QLineEdit(self)
+        # self.raidName_layout.addWidget(self.raidNameText)
+        # self.raidName_layout.addWidget(self.raidName)
+        # self.raidName.editingFinished.connect(self.raidNameFetch)
+
+        self.buttonBox = QDialogButtonBox(QBtn)
+        self.buttonBox.accepted.connect(self.accept)
+        self.buttonBox.rejected.connect(self.reject)
+
+        self.raidSelect_layout = QHBoxLayout()
+        self.raidSelect = QComboBox()
+        self.raidSelectText = QLabel('Select raid:')
+        self.raidSelect.addItems(["", "AQ20", "ZG", "MC", "BWL", "AQ40"])
+        self.raidSelect_layout.addWidget(self.raidSelectText)
+        self.raidSelect_layout.addWidget(self.raidSelect)
+        # self.raidSelect.currentIndexChanged.connect(self.PUTOWNFNHERE)
+
+        self.noReservesText = QLabel('No. of Soft Reserves')
+        self.noReserves = QComboBox()
+        self.noReserves.addItems(["0", "1", "2", "3"])
+        # self.noReserves.currentIndexChanged.connect(self.PUTOWNFNHERE)
+
+        self.plusOneText = QLabel('+1?')
+        self.plusOne = QCheckBox()
+        # self.plusOne.<something>.connect(self.PUTOWNFNHERE)
+
+        self.grid_layout = QGridLayout()
+        self.grid_layout.addWidget(self.raidSelectText, 0, 0)
+        self.grid_layout.addWidget(self.raidSelect, 1, 0)
+        self.grid_layout.addWidget(self.noReservesText, 0, 1)
+        self.grid_layout.addWidget(self.noReserves, 1, 1)
+        self.grid_layout.addWidget(self.plusOneText, 0, 2)
+        self.grid_layout.addWidget(self.plusOne, 1, 2)
+
+        self.button_layout = QHBoxLayout()
+        self.button_layout.addWidget(self.buttonBox)
+
+        # Set a vertical layout master
+        self.layout_container = QVBoxLayout()
+
+        # self.layout_container.addLayout(self.raidName_Layout)
+        self.layout_container.addLayout(self.raidSelect_layout) # a problem child
+        self.layout_container.addLayout(self.grid_layout)
+        # self.layout_container.stretch()
+        self.layout_container.addLayout(self.button_layout)
+
+        # self.setLayout(self.layout_container)
+        self.setLayout(self.button_layout)
+        self.show()
+
+
+    def raidNameFetch(self):
+        print("typing finished")
 
 
 class MainWindow(QMainWindow):
@@ -112,7 +179,7 @@ class MainWindow(QMainWindow):
         newRaidAction = QAction('New Raid', self)
         newRaidAction.setShortcut('Ctrl+N')
         newRaidAction.setStatusTip('Create a new raid')
-        # newRaidAction.triggered.connect(self.newRaid)
+        newRaidAction.triggered.connect(self.newRaid)
         fileMenu.addAction(newRaidAction)
         fileMenu.addMenu(importMenu)
 
@@ -167,7 +234,11 @@ class MainWindow(QMainWindow):
             file.close()
 
     def newRaid(self):
-        print("Test")
+        dlg = NewRaidDialog(self)
+        if dlg.exec_():
+            print("Yep")
+        else:
+            print("Nope")
 
 
 if __name__ == '__main__':
